@@ -19,6 +19,9 @@ public class launcher : MonoBehaviourPunCallbacks
     public RoomButton roomButton;
     public List<RoomButton> allRoomButtons;
 
+    public GameObject errorScreen;
+    public TMP_Text errorText;
+
     public void Start()
     {
         instance = this;
@@ -55,6 +58,17 @@ public class launcher : MonoBehaviourPunCallbacks
             LoadingScene.SetActive(true);
             loadingtext.text = "Creating Room....";
         }
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        errorText.text = "Failed to create Room: " + message;
+        errorScreen.SetActive(true);
+    }
+
+    public void CloseErrorScreen()
+    {
+        errorScreen.SetActive(false);
     }
 
     public override void OnCreatedRoom()
