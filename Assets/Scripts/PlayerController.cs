@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 mouseInput;
     private float horizontalInput, verticalInput;
     public float speed = 5f;
-    Vector3 moveDirection;
+    private Vector3 moveDirection;
     private Rigidbody rb;
     public Camera cam;
     public Animator anim;
@@ -21,37 +21,39 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 5f;
 
     public GameObject bulletImpact;
+
     //public float timeBetweenShots = 0.1f;
     private float shotCounter;
+
     public float muzzleDisplayTime = 0.1f;
     private float muzzleCounter;
 
     public float maxHeat = 10f, /*heatPerShot = 1f,*/ coolRate = 4f, overheatCoolRate = 5f;
     private float heatCounter;
     private bool overHeated;
-    
+
     public Gun[] allGuns;
     private int currentGun;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         anim = GetComponentInChildren<Animator>();
         cam = Camera.main;
         rb = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
-        
+
         anim.SetBool("isShooting", false);
         UIController.instance.weaponTempSlider.maxValue = maxHeat;
         SwitchGun();
-        
+
         Transform newTransform = SpawnManager.instance.GetSpawnPoint();
         transform.position = newTransform.position;
         transform.rotation = newTransform.rotation;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
@@ -63,7 +65,8 @@ public class PlayerController : MonoBehaviour
         verticalRotStore += mouseInput.y;
         verticalRotStore = Mathf.Clamp(verticalRotStore, -60f, 60f);
 
-        if (invertLook) {
+        if (invertLook)
+        {
             viewPoint.rotation = Quaternion.Euler(verticalRotStore, viewPoint.rotation.eulerAngles.y, viewPoint.rotation.eulerAngles.z);
         }
         else
@@ -105,19 +108,19 @@ public class PlayerController : MonoBehaviour
             if (Input.GetMouseButton(0) && allGuns[currentGun].isAutomatic)
             {
                 shotCounter -= Time.deltaTime;
-            
+
                 if (shotCounter <= 0)
                 {
                     anim.SetBool("isShooting", true);
                     Shoot();
                 }
             }
-            
+
             if (Input.GetMouseButtonUp(0))
             {
                 anim.SetBool("isShooting", false);
             }
-            
+
             heatCounter -= coolRate * Time.deltaTime;
         }
         else
@@ -129,14 +132,14 @@ public class PlayerController : MonoBehaviour
                 UIController.instance.overHeatText.gameObject.SetActive(false);
             }
         }
-        
+
         if (heatCounter < 0)
         {
             heatCounter = 0;
         }
-        
+
         UIController.instance.weaponTempSlider.value = heatCounter;
-        
+
         if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
         {
             currentGun++;
@@ -155,7 +158,7 @@ public class PlayerController : MonoBehaviour
             }
             SwitchGun();
         }
-        
+
         //weapon switching with number keys 1-3
         for (int i = 0; i < allGuns.Length; i++)
         {
@@ -174,21 +177,21 @@ public class PlayerController : MonoBehaviour
 
         rb.MovePosition(rb.position + moveDirection * speed * Time.deltaTime);
     }
-    
+
     private void Shoot()
     {
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         ray.origin = cam.transform.position;
-        
+
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Debug.Log("we hit " + hit.collider.gameObject.name);
             GameObject bulletImpactObject = Instantiate(bulletImpact, hit.point + (hit.normal * 0.0002f), Quaternion.LookRotation(hit.normal, Vector3.up));
             Destroy(bulletImpactObject, 7f);
         }
-        
+
         shotCounter = allGuns[currentGun].timeBetweenShots;
-        
+
         heatCounter += allGuns[currentGun].heatPerShot;
         if (heatCounter >= maxHeat)
         {
@@ -197,11 +200,11 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isShooting", false);
             UIController.instance.overHeatText.gameObject.SetActive(true);
         }
-        
+
         allGuns[currentGun].muzzleFlash.SetActive(true);
         muzzleCounter = muzzleDisplayTime;
     }
-    
+
     private void SwitchGun()
     {
         foreach (Gun gun in allGuns)
@@ -219,6 +222,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
     }
+
     private void OnCollisionExit(Collision collision)
     {
         if (collision.other.CompareTag("Ground"))

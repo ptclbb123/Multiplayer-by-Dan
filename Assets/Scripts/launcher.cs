@@ -2,6 +2,8 @@ using UnityEngine;
 using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Linq;
+using System.Collections.Generic;
 
 public class launcher : MonoBehaviourPunCallbacks
 {
@@ -13,8 +15,11 @@ public class launcher : MonoBehaviourPunCallbacks
     public TMP_Text roomnameText;
     public TMP_InputField roomNameInputField;
 
-    // Start is called before the first frame update
-    private void Start()
+    public GameObject roomBrowserScreen;
+    public RoomButton roomButton;
+    public List<RoomButton> allRoomButtons;
+
+    public void Start()
     {
         instance = this;
         LoadingScene.SetActive(true);
@@ -66,5 +71,22 @@ public class launcher : MonoBehaviourPunCallbacks
         LoadingScene.SetActive(true);
         loadingtext.text = "Leaving Room.....";
         PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        foreach (var item in allRoomButtons)
+        {
+            Destroy(item.gameObject);
+        }
+        allRoomButtons.Clear();
+
+        for (int i = 0; i < roomList.Count; i++)
+        {
+            RoomButton newButton = Instantiate(roomButton, roomButton.transform.parent);
+            newButton.SetButtonDetails(roomList[i]);
+            newButton.gameObject.SetActive(true);
+            allRoomButtons.Add(newButton);
+        }
     }
 }
