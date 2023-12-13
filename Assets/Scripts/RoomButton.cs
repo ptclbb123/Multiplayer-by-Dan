@@ -22,10 +22,11 @@ public class RoomButton : MonoBehaviour
     public void SetButtonDetails(RoomInfo roomInfo)
     {
         info = roomInfo;
-        buttonText.text = roomInfo.ToString();
+        buttonText.text = roomInfo.Name.ToString();
     }
 
     public void JoinRoom()
     {
+        launcher.instance.JoinRoom(info);
     }
 }
