@@ -24,6 +24,7 @@ public class launcher : MonoBehaviourPunCallbacks
 
     public TMP_Text playerNameLabel;
     public List<TMP_Text> playerNameList;
+    public GameObject startGameBtn;
 
     public void Start()
     {
@@ -133,6 +134,15 @@ public class launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.NickName = Random.Range(0, 1000).ToString();
         ListAllPlayerss();
         roomnameText.text = PhotonNetwork.CurrentRoom.Name;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            startGameBtn.SetActive(true);
+        }
+        else
+        {
+            startGameBtn.SetActive(false);
+        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -162,6 +172,6 @@ public class launcher : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        PhotonNetwork.LoadLevel("FPS");
+        { PhotonNetwork.LoadLevel("FPS"); }
     }
 }
